@@ -1,33 +1,45 @@
-import { useSelector, useDispatch } from 'react-redux';
-import { getContacts, getFilterValue } from 'redux/selectors';
-import { deleteContact } from 'redux/contactsSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { getError, getIsLoading } from '../../redux/selectors';
+import { useEffect } from 'react';
+import { fetchContacts, deleteContact } from 'redux/operations';
 import { List, Button, Item, Text } from './ContactListStyled';
 
 const ContactList = () => {
-  let contacts = useSelector(getContacts);
-  const contactFilter = useSelector(getFilterValue);
-  if (contactFilter.length) {
-    const lowerCasedFilter = contactFilter.toLowerCase();
-    contacts = contacts.filter(contact =>
-      contact.name.toLowerCase().includes(lowerCasedFilter)
-    );
-  }
-
+  const { contacts, filter } = useSelector(state => state);
+  const isLoading = useSelector(getIsLoading);
+  const error = useSelector(getError);
   const dispatch = useDispatch();
 
+  const getVisibleContacts = () => {
+    const normilizedFilter = filter.toLowerCase().trim();
+    return contacts.items.filter(contact => {
+      return contact.name.toLowerCase().includes(normilizedFilter);
+    });
+  };
+
+  const filterName = getVisibleContacts();
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
   return (
-    <List>
-      {contacts.map(({ id, name, number }) => (
-        <Item key={id}>
-          <Text>
-            {name}: {number}
-          </Text>
-          <Button type="button" onClick={() => dispatch(deleteContact(id))}>
-            Delete
-          </Button>
-        </Item>
-      ))}
-    </List>
+    <div>
+      {isLoading && <p>Loading...</p>}
+      {error && <p>{error}</p>}
+      <List>
+        {filterName.map(({ id, name, phone }) => (
+          <Item key={id}>
+            <Text>
+              {name}: {phone}
+            </Text>
+            <Button type="button" onClick={() => dispatch(deleteContact(id))}>
+              Delete
+            </Button>
+          </Item>
+        ))}
+      </List>
+    </div>
   );
 };
 

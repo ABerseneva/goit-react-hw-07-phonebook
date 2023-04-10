@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact } from 'redux/contactsSlice';
 import { nanoid } from 'nanoid';
+import { addContact } from 'redux/operations';
 import { Form, Button, Input, Label, WrapBtn } from './ContactFormStyled';
 
 function ContactForm() {
   const dispatch = useDispatch();
   const contacts = useSelector(state => state.contacts);
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+  const [phone, setPhone] = useState('');
 
   const handleChange = event => {
     const { name, value } = event.currentTarget;
@@ -17,8 +17,8 @@ function ContactForm() {
         setName(value);
         break;
 
-      case 'number':
-        setNumber(value);
+      case 'phone':
+        setPhone(value);
         break;
 
       default:
@@ -30,9 +30,9 @@ function ContactForm() {
     event.preventDefault();
 
     const id = nanoid();
-    const contact = { id, name, number };
+    const contact = { id, name, phone };
 
-    const saveContact = contacts.find(contact => contact.name === name);
+    const saveContact = contacts.items.find(contact => contact.name === name);
     if (saveContact) {
       return alert('Contact is already added!');
     }
@@ -42,7 +42,7 @@ function ContactForm() {
 
   const reset = () => {
     setName('');
-    setNumber('');
+    setPhone('');
   };
 
   return (
@@ -65,9 +65,9 @@ function ContactForm() {
         Number
         <Input
           type="tel"
-          name="number"
-          placeholder="Number"
-          value={number}
+          name="phone"
+          placeholder="Phone"
+          value={phone}
           onChange={handleChange}
           id={nanoid()}
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
